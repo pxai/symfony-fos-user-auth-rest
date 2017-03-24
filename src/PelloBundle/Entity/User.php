@@ -1,12 +1,19 @@
 <?php
 namespace PelloBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\Common\Collections\ArrayCollection;
+
+use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthUser;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")
  * @ORM\HasLifecycleCallbacks()
  */
-class User
+class User extends OAuthUser implements EquatableInterface, \Serializable
 {
     /**
      * @ORM\Id
@@ -70,11 +77,15 @@ class User
      * @ORM\Column(type="datetime")
      */
     protected $updated_on;
+
+    protected $roles;
+    protected $salt;
     /**
      * @ORM\PrePersist
      */
     public function onPrePersist()
     {
+        $this->roles = new ArrayCollection();
         //using Doctrine DateTime here
         $this->created_on = new \DateTime('now');
         $this->updated_on = new \DateTime('now');
@@ -375,5 +386,65 @@ class User
     public function getTid()
     {
         return $this->tid;
+    }
+
+    public function getRolesAsCollection()
+    {
+        return $this->roles;
+    }
+
+    public function setRoles($role)
+    {
+        return $this->roles->add($role);
+    }
+
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * Get salt
+     *
+     * @return string
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    public function eraseCredentials()
+    {
+    }
+
+    /**
+     * @see \Serializable::serialize()
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+        ));
+    }
+
+    /**
+     * @see \Serializable::unserialize()
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            ) = unserialize($serialized);
+    }
+
+    public function isEqualTo(UserInterface $user)
+    {
+        if ((int)$this->getId() === $user->getId()) {
+            return true;
+        }
+
+        return false;
     }
 }

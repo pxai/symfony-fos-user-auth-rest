@@ -52,7 +52,7 @@ class UserProvider extends OAuthUserProvider
 
     private function getUserById($id) {
         return $this->doctrine
-            ->getRepository('CodeMe\TheBundle\Entity\User')
+            ->getRepository('PelloBundle\Entity\User')
             ->findOneById($id);
     }
 
