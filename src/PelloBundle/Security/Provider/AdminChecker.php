@@ -5,7 +5,7 @@ use PelloBundle\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
 /**
  * Class AdminChecker
- * @package CodeMe\TheBundle\Provider
+ * @package PelloBundle\Provider
  */
 class AdminChecker{
     /**

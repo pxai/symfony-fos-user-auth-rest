@@ -79,7 +79,7 @@ class UserProvider extends OAuthUserProvider
         $isLive = false;
         $isTwitter = false;
 
-        if(strpos($uri, '/login_google') !== false)
+        if(strpos($uri, '/login/check-google') !== false)
             $isGoogle = true;
         if(strpos($uri, '/login_facebook') !== false)
             $isFacebook = true;
@@ -89,7 +89,7 @@ class UserProvider extends OAuthUserProvider
             $isTwitter = true;
 
         if($isGoogle === false && $isFacebook === false && $isLive === false && $isTwitter === false)
-            throw new \Exception("Invalid social network login attempt");
+            throw new \Exception("Invalid social network login attempt: " . $uri);
 
         $social = "";
         if($isGoogle)
@@ -125,23 +125,23 @@ class UserProvider extends OAuthUserProvider
         $user = null;
         if($isLoggedInAlready)
             $user = $this->doctrine
-                ->getRepository('CodeMe\TheBundle\Entity\User')
+                ->getRepository('PelloBundle\Entity\User')
                 ->findOneById($isLoggedInAlreadyId);
         else if($isFacebook)
             $user = $this->doctrine
-                ->getRepository('CodeMe\TheBundle\Entity\User')
+                ->getRepository('PelloBundle\Entity\User')
                 ->findOneByFid($social_id);
         else if($isGoogle)
             $user = $this->doctrine
-                ->getRepository('CodeMe\TheBundle\Entity\User')
+                ->getRepository('PelloBundle\Entity\User')
                 ->findOneByGid($social_id);
         else if($isLive)
             $user = $this->doctrine
-                ->getRepository('CodeMe\TheBundle\Entity\User')
+                ->getRepository('PelloBundle\Entity\User')
                 ->findOneByLid($social_id);
         else if($isTwitter)
             $user = $this->doctrine
-                ->getRepository('CodeMe\TheBundle\Entity\User')
+                ->getRepository('PelloBundle\Entity\User')
                 ->findOneByTid($social_id);
 
         if ($user == null) {
@@ -210,6 +210,6 @@ class UserProvider extends OAuthUserProvider
      */
     public function supportsClass($class)
     {
-        return $class === 'CodeMe\\TheBundle\\Provider\\OAuthUser';
+        return $class === 'PelloBundle\\Provider\\OAuthUser';
     }
 }
