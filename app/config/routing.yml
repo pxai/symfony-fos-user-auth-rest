@@ -23,7 +23,7 @@ facebook_login:
     path: /login/check-facebook
 
 google_login:
-    path: /login/check-google
+    path: "/login/check-google"
 
 custom_login:
     path: /login/check-custom
