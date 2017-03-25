@@ -86,6 +86,7 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
     public function onPrePersist()
     {
         $this->roles = new ArrayCollection();
+        $this->roles->add('ROLE_USER');
         //using Doctrine DateTime here
         $this->created_on = new \DateTime('now');
         $this->updated_on = new \DateTime('now');

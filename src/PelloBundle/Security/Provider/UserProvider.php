@@ -145,7 +145,7 @@ class UserProvider extends OAuthUserProvider
                 ->findOneByTid($social_id);
 
         if ($user == null) {
-            $user = new User();
+            $user = new User($nickname);
 
             //change these only the user hasn't been registered before.
             $user->setNickname($nickname);
@@ -201,6 +201,13 @@ class UserProvider extends OAuthUserProvider
         $sessionData['is_admin'] = $this->adminChecker->check($user);
 
         $this->session->set('user', $sessionData);
+
+        $serviceName = $response->getResourceOwner()->getName();
+        $setter = 'set' . ucfirst($serviceName) . 'AccessToken';
+        //update access token
+        $user->$setter($response->getAccessToken());
+
+        //return $user;
         return $this->loadUserByUsername($user->getId());
     }
 
