@@ -12,6 +12,7 @@ use PelloBundle\Security\Provider\AdminChecker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Doctrine\Bundle\DoctrineBundle\Registry as Doctrine;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 
 /***
@@ -63,6 +64,8 @@ class UserProvider extends OAuthUserProvider
     public function loadUserByUsername($id)
     {
         $user = $this->getUserById($id);
+        $token = new UsernamePasswordToken($user, null, "google", array('ROLE_USER','ROLE_ADMIN'));
+        $this->session->set('_security_session_key', serialize($token));
         return new OAuthUser($id, $user, $this->adminChecker->check($user));
     }
 
@@ -202,10 +205,15 @@ class UserProvider extends OAuthUserProvider
 
         $this->session->set('user', $sessionData);
 
-        $serviceName = $response->getResourceOwner()->getName();
-        $setter = 'set' . ucfirst($serviceName) . 'AccessToken';
+       // $serviceName = $response->getResourceOwner()->getName();
+       // $setter = 'set' . ucfirst($serviceName) . 'AccessToken';
         //update access token
-        $user->$setter($response->getAccessToken());
+       // $user->$setter($response->getAccessToken());
+
+      /*  $firewall = "session_key";
+        $token = new UsernamePasswordToken($user, null, "google", array('ROLE_USER','ROLE_ADMIN'));
+        $this->session->set('_security_'.$firewall, serialize($token));
+        //$this->session->save();*/
 
         //return $user;
         return $this->loadUserByUsername($user->getId());

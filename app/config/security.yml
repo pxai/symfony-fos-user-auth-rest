@@ -14,8 +14,10 @@ security:
             pattern:    ^/login$
             security: false
 
+        pello:
+            pattern:  ^/pello
+            security: false
         secured_area:
-            pattern: ^/login
             anonymous: ~
             oauth:
                 resource_owners:

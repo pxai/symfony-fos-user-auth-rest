@@ -13,7 +13,7 @@ use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthUser;
  * @ORM\Table(name="user")
  * @ORM\HasLifecycleCallbacks()
  */
-class User extends OAuthUser implements EquatableInterface, \Serializable
+class User extends OAuthUser implements  UserInterface, \Serializable
 {
     /**
      * @ORM\Id
@@ -25,6 +25,8 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     protected $nickname;
+    protected $username;
+    protected $password;
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
@@ -80,11 +82,38 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
 
     protected $roles;
     protected $salt;
+
+
+    /** @see \Serializable::serialize() */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+            $this->username,
+            $this->password,
+            // see section on salt below
+            // $this->salt,
+        ));
+    }
+
+    /** @see \Serializable::unserialize() */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->username,
+            $this->password,
+            // see section on salt below
+            // $this->salt
+            ) = unserialize($serialized);
+    }
+
     /**
      * @ORM\PrePersist
      */
     public function onPrePersist()
     {
+        $this->password = "";
         $this->roles = new ArrayCollection();
         $this->roles->add('ROLE_USER');
         //using Doctrine DateTime here
@@ -117,8 +146,20 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
     public function setNickname($nickname)
     {
         $this->nickname = $nickname;
+        $this->username = $nickname;
         return $this;
     }
+
+    /**
+     * Get nickname
+     *
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->nickname;
+    }
+
     /**
      * Get nickname
      *
@@ -379,6 +420,7 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
         $this->tid = $tid;
         return $this;
     }
+
     /**
      * Get tid
      *
@@ -388,6 +430,9 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
     {
         return $this->tid;
     }
+
+
+
 
     public function getRolesAsCollection()
     {
@@ -420,25 +465,6 @@ class User extends OAuthUser implements EquatableInterface, \Serializable
     {
     }
 
-    /**
-     * @see \Serializable::serialize()
-     */
-    public function serialize()
-    {
-        return serialize(array(
-            $this->id,
-        ));
-    }
-
-    /**
-     * @see \Serializable::unserialize()
-     */
-    public function unserialize($serialized)
-    {
-        list (
-            $this->id,
-            ) = unserialize($serialized);
-    }
 
     public function isEqualTo(UserInterface $user)
     {
